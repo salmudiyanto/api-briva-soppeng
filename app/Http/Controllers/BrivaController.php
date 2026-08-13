@@ -31,7 +31,9 @@ class BrivaController extends Controller
             openssl_pkey_export($res, $privateKeyPem);
         }
 
-        $result = $this->brivaService->getAccessToken($clientId, $privateKeyPem);
+        $timestamp = $request->header('X-TIMESTAMP');
+
+        $result = $this->brivaService->getAccessToken($clientId, $privateKeyPem, $timestamp);
         return response()->json($result, $result['responseCode'] === '2007300' ? 200 : 400);
     }
 
@@ -43,8 +45,9 @@ class BrivaController extends Controller
         $authHeader = $request->header('Authorization', '');
         $accessToken = str_replace('Bearer ', '', $authHeader);
         $clientSecret = env('BRIVA_CLIENT_SECRET', 'SECRET123');
+        $timestamp = $request->header('X-TIMESTAMP');
 
-        $result = $this->brivaService->processInquiry($request->all(), $accessToken, $clientSecret);
+        $result = $this->brivaService->processInquiry($request->all(), $accessToken, $clientSecret, $timestamp);
         $status = strpos($result['responseCode'], '200') === 0 ? 200 : 400;
 
         return response()->json($result, $status);
@@ -58,8 +61,9 @@ class BrivaController extends Controller
         $authHeader = $request->header('Authorization', '');
         $accessToken = str_replace('Bearer ', '', $authHeader);
         $clientSecret = env('BRIVA_CLIENT_SECRET', 'SECRET123');
+        $timestamp = $request->header('X-TIMESTAMP');
 
-        $result = $this->brivaService->processPayment($request->all(), $accessToken, $clientSecret);
+        $result = $this->brivaService->processPayment($request->all(), $accessToken, $clientSecret, $timestamp);
         $status = strpos($result['responseCode'], '200') === 0 ? 200 : 400;
 
         return response()->json($result, $status);

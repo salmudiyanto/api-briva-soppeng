@@ -82,4 +82,20 @@ class BrivaApiTest extends TestCase
                      'paymentFlagStatus' => '00'
                  ]);
     }
+
+    /**
+     * Test Get Token API without X-TIMESTAMP header
+     */
+    public function testGetTokenMissingTimestamp()
+    {
+        $response = $this->json('POST', '/api/snap/v1.0/access-token/b2b', [], [
+            'X-CLIENT-KEY' => 'CLIENT123'
+        ]);
+
+        $response->assertStatus(400)
+                 ->assertJsonFragment([
+                     'responseCode' => '4007301',
+                     'responseMessage' => 'Missing X-TIMESTAMP Header'
+                 ]);
+    }
 }

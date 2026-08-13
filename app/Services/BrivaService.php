@@ -17,7 +17,7 @@ class BrivaService
     /**
      * Process Get Access Token B2B
      */
-    public function getAccessToken($clientId, $privateKeyPem)
+    public function getAccessToken($clientId, $privateKeyPem, $timestamp = null)
     {
         $cacheKey = 'briva_access_token_' . md5($clientId);
 
@@ -31,7 +31,12 @@ class BrivaService
             ];
         }
 
-        $timestamp = $this->securityService->getTimestamp();
+        if (!$timestamp) {
+            return [
+                'responseCode' => '4007301',
+                'responseMessage' => 'Missing X-TIMESTAMP Header'
+            ];
+        }
         $signature = $this->securityService->generateAsymmetricSignature($clientId, $timestamp, $privateKeyPem);
 
         Log::info('BrivaGetToken Request', [
@@ -57,9 +62,14 @@ class BrivaService
     /**
      * Process Inquiry Request
      */
-    public function processInquiry(array $payload, $accessToken, $clientSecret)
+    public function processInquiry(array $payload, $accessToken, $clientSecret, $timestamp = null)
     {
-        $timestamp = $this->securityService->getTimestamp();
+        if (!$timestamp) {
+            return [
+                'responseCode' => '4002401',
+                'responseMessage' => 'Missing X-TIMESTAMP Header'
+            ];
+        }
         
         // Validate required fields
         if (empty($payload['partnerServiceId']) || empty($payload['customerNo']) || empty($payload['virtualAccountNo'])) {
@@ -109,9 +119,14 @@ class BrivaService
     /**
      * Process Payment / Posting Request
      */
-    public function processPayment(array $payload, $accessToken, $clientSecret)
+    public function processPayment(array $payload, $accessToken, $clientSecret, $timestamp = null)
     {
-        $timestamp = $this->securityService->getTimestamp();
+        if (!$timestamp) {
+            return [
+                'responseCode' => '4002501',
+                'responseMessage' => 'Missing X-TIMESTAMP Header'
+            ];
+        }
 
         // Validate required fields
         if (empty($payload['partnerServiceId']) || empty($payload['customerNo']) || empty($payload['paymentRequestId'])) {
