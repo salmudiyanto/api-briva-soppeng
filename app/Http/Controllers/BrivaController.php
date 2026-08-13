@@ -54,7 +54,10 @@ class BrivaController extends Controller
         $result = $this->brivaService->getAccessToken($clientId, $privateKeyPem, $timestamp);
         $status = (int) substr($result['responseCode'], 0, 3);
 
-        $this->logAccess($request, $result, $clientId);
+        $reason = isset($result['reason']) ? $result['reason'] : ($status === 200 ? 'success' : 'failed');
+        unset($result['reason']);
+
+        $this->logAccess($request, $result, $reason, $clientId);
 
         return response()->json($result, $status);
     }
@@ -72,7 +75,10 @@ class BrivaController extends Controller
         $result = $this->brivaService->processInquiry($request->all(), $accessToken, $clientSecret, $timestamp);
         $status = (int) substr($result['responseCode'], 0, 3);
 
-        $this->logAccess($request, $result);
+        $reason = isset($result['reason']) ? $result['reason'] : ($status === 200 ? 'success' : 'failed');
+        unset($result['reason']);
+
+        $this->logAccess($request, $result, $reason);
 
         return response()->json($result, $status);
     }
@@ -90,7 +96,10 @@ class BrivaController extends Controller
         $result = $this->brivaService->processPayment($request->all(), $accessToken, $clientSecret, $timestamp);
         $status = (int) substr($result['responseCode'], 0, 3);
 
-        $this->logAccess($request, $result);
+        $reason = isset($result['reason']) ? $result['reason'] : ($status === 200 ? 'success' : 'failed');
+        unset($result['reason']);
+
+        $this->logAccess($request, $result, $reason);
 
         return response()->json($result, $status);
     }
@@ -98,7 +107,7 @@ class BrivaController extends Controller
     /**
      * Catat riwayat akses ke tabel t_briva_api_access_logs
      */
-    protected function logAccess(Request $request, array $result, $clientId = null)
+    protected function logAccess(Request $request, array $result, $reason = 'success', $clientId = null)
     {
         try {
             \DB::table('t_briva_api_access_logs')->insert([
@@ -112,7 +121,10 @@ class BrivaController extends Controller
                 ]),
                 'request_payload' => json_encode($request->all()),
                 'response_code' => isset($result['responseCode']) ? $result['responseCode'] : null,
-                'response_payload' => json_encode($result),
+                'response_payload' => json_encode([
+                    'response' => $result,
+                    'reason' => $reason
+                ], JSON_UNESCAPED_SLASHES),
                 'ip_address' => $request->ip(),
                 'created_at' => date('Y-m-d H:i:s'),
             ]);

@@ -22,7 +22,8 @@ class BrivaService
         if (!$timestamp) {
             return [
                 'responseCode' => '4007301',
-                'responseMessage' => 'Invalid Field Format X-TIMESTAMP'
+                'responseMessage' => 'Invalid Field Format',
+                'reason' => 'invalid field format X-TIMESTAMP'
             ];
         }
 
@@ -31,10 +32,11 @@ class BrivaService
         if (Cache::has($cacheKey)) {
             return [
                 'responseCode' => '2007300',
-                'responseMessage' => 'Success (Cached)',
+                'responseMessage' => 'Successful',
                 'accessToken' => Cache::get($cacheKey),
                 'tokenType' => 'BearerToken',
-                'expiresIn' => '899'
+                'expiresIn' => '899',
+                'reason' => 'success'
             ];
         }
         $signature = $this->securityService->generateAsymmetricSignature($clientId, $timestamp, $privateKeyPem);
@@ -56,7 +58,8 @@ class BrivaService
             'responseMessage' => 'Successful',
             'accessToken' => $accessToken,
             'tokenType' => 'BearerToken',
-            'expiresIn' => '899'
+            'expiresIn' => '899',
+            'reason' => 'success'
         ];
     }
 
@@ -68,7 +71,8 @@ class BrivaService
         if (!$timestamp) {
             return [
                 'responseCode' => '4002401',
-                'responseMessage' => 'Invalid Field Format X-TIMESTAMP'
+                'responseMessage' => 'Invalid Field Format',
+                'reason' => 'invalid field format X-TIMESTAMP'
             ];
         }
         
@@ -76,7 +80,8 @@ class BrivaService
         if (empty($payload['partnerServiceId']) || empty($payload['customerNo']) || empty($payload['virtualAccountNo'])) {
             return [
                 'responseCode' => '4002402',
-                'responseMessage' => 'Invalid Mandatory Field'
+                'responseMessage' => 'Invalid Mandatory Field',
+                'reason' => 'invalid mandatory field'
             ];
         }
 
@@ -113,7 +118,8 @@ class BrivaService
                     'english' => 'Success',
                     'indonesia' => 'Sukses'
                 ]
-            ]
+            ],
+            'reason' => 'success'
         ];
     }
 
@@ -125,7 +131,8 @@ class BrivaService
         if (!$timestamp) {
             return [
                 'responseCode' => '4002501',
-                'responseMessage' => 'Invalid Field Format X-TIMESTAMP'
+                'responseMessage' => 'Invalid Field Format',
+                'reason' => 'invalid field format X-TIMESTAMP'
             ];
         }
 
@@ -133,7 +140,8 @@ class BrivaService
         if (empty($payload['partnerServiceId']) || empty($payload['customerNo']) || empty($payload['paymentRequestId'])) {
             return [
                 'responseCode' => '4002502',
-                'responseMessage' => 'Invalid Mandatory Field'
+                'responseMessage' => 'Invalid Mandatory Field',
+                'reason' => 'invalid mandatory field'
             ];
         }
 
@@ -141,7 +149,8 @@ class BrivaService
         if (empty($payload['paidAmount']['value'])) {
             return [
                 'responseCode' => '4002501',
-                'responseMessage' => 'Invalid Field Format'
+                'responseMessage' => 'Invalid Field Format',
+                'reason' => 'invalid field format paidAmount'
             ];
         }
 
@@ -179,7 +188,8 @@ class BrivaService
                     'english' => 'Success',
                     'indonesia' => 'Sukses'
                 ]
-            ]
+            ],
+            'reason' => 'success'
         ];
     }
 }

@@ -95,7 +95,7 @@ class BrivaApiTest extends TestCase
         $response->assertStatus(400)
                  ->assertJsonFragment([
                      'responseCode' => '4007301',
-                     'responseMessage' => 'Invalid Field Format X-TIMESTAMP'
+                     'responseMessage' => 'Invalid Field Format'
                  ]);
     }
 
@@ -118,7 +118,7 @@ class BrivaApiTest extends TestCase
         $response->assertStatus(400)
                  ->assertJsonFragment([
                      'responseCode' => '4007301',
-                     'responseMessage' => 'Invalid Field Format X-TIMESTAMP'
+                     'responseMessage' => 'Invalid Field Format'
                  ]);
     }
 }
