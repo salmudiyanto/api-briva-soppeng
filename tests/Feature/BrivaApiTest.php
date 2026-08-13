@@ -95,7 +95,30 @@ class BrivaApiTest extends TestCase
         $response->assertStatus(400)
                  ->assertJsonFragment([
                      'responseCode' => '4007301',
-                     'responseMessage' => 'Missing X-TIMESTAMP Header'
+                     'responseMessage' => 'Invalid Field Format X-TIMESTAMP'
+                 ]);
+    }
+
+    /**
+     * Test Get Token API without X-TIMESTAMP header when cache is already active
+     */
+    public function testGetTokenMissingTimestampWithActiveCache()
+    {
+        // First request to populate cache
+        $this->json('POST', '/api/snap/v1.0/access-token/b2b', [], [
+            'X-CLIENT-KEY' => 'CLIENT123',
+            'X-TIMESTAMP' => '2021-11-02T13:14:15.678+07:00'
+        ]);
+
+        // Second request WITHOUT X-TIMESTAMP header while cache is active
+        $response = $this->json('POST', '/api/snap/v1.0/access-token/b2b', [], [
+            'X-CLIENT-KEY' => 'CLIENT123'
+        ]);
+
+        $response->assertStatus(400)
+                 ->assertJsonFragment([
+                     'responseCode' => '4007301',
+                     'responseMessage' => 'Invalid Field Format X-TIMESTAMP'
                  ]);
     }
 }

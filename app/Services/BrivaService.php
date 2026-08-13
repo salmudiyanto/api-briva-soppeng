@@ -19,6 +19,13 @@ class BrivaService
      */
     public function getAccessToken($clientId, $privateKeyPem, $timestamp = null)
     {
+        if (!$timestamp) {
+            return [
+                'responseCode' => '4007301',
+                'responseMessage' => 'Invalid Field Format X-TIMESTAMP'
+            ];
+        }
+
         $cacheKey = 'briva_access_token_' . md5($clientId);
 
         if (Cache::has($cacheKey)) {
@@ -30,13 +37,6 @@ class BrivaService
                 'expiresIn' => '899'
             ];
         }
-
-        if (!$timestamp) {
-            return [
-                'responseCode' => '4007301',
-                'responseMessage' => 'Missing X-TIMESTAMP Header'
-            ];
-        }
         $signature = $this->securityService->generateAsymmetricSignature($clientId, $timestamp, $privateKeyPem);
 
         Log::info('BrivaGetToken Request', [
@@ -45,7 +45,8 @@ class BrivaService
         ]);
 
         // Mock token generation for local service test
-        $accessToken = 'briva_bearer_token_' . bin2hex(random_bytes(16));
+        // $accessToken = 'briva_bearer_token_' . bin2hex(random_bytes(16));
+        $accessToken =  bin2hex(random_bytes(16));
         
         // Cache for 14 minutes (840 seconds)
         Cache::put($cacheKey, $accessToken, 14);
@@ -67,7 +68,7 @@ class BrivaService
         if (!$timestamp) {
             return [
                 'responseCode' => '4002401',
-                'responseMessage' => 'Missing X-TIMESTAMP Header'
+                'responseMessage' => 'Invalid Field Format X-TIMESTAMP'
             ];
         }
         
@@ -124,7 +125,7 @@ class BrivaService
         if (!$timestamp) {
             return [
                 'responseCode' => '4002501',
-                'responseMessage' => 'Missing X-TIMESTAMP Header'
+                'responseMessage' => 'Invalid Field Format X-TIMESTAMP'
             ];
         }
 
