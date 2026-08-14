@@ -11,7 +11,7 @@ class BrivaApiTest extends TestCase
      */
     public function testGetToken()
     {
-        $response = $this->json('POST', '/api/snap/v1.0/access-token/b2b', [], [
+        $response = $this->json('POST', '/snap/v1.0/access-token/b2b', [], [
             'X-CLIENT-KEY' => 'CLIENT123',
             'X-TIMESTAMP' => '2021-11-02T13:14:15.678+07:00'
         ]);
@@ -42,7 +42,7 @@ class BrivaApiTest extends TestCase
             ]
         ];
 
-        $response = $this->json('POST', '/api/snap/v1.0/transfer-va/inquiry', $payload, [
+        $response = $this->json('POST', '/snap/v1.0/transfer-va/inquiry', $payload, [
             'Authorization' => 'Bearer sample_token_123',
             'X-TIMESTAMP' => '2021-11-02T13:14:15.678+07:00'
         ]);
@@ -71,7 +71,7 @@ class BrivaApiTest extends TestCase
             ]
         ];
 
-        $response = $this->json('POST', '/api/snap/v1.0/transfer-va/payment', $payload, [
+        $response = $this->json('POST', '/snap/v1.0/transfer-va/payment', $payload, [
             'Authorization' => 'Bearer sample_token_123',
             'X-TIMESTAMP' => '2021-11-02T13:14:15.678+07:00'
         ]);
