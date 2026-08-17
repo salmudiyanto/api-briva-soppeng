@@ -50,8 +50,9 @@ class BrivaController extends Controller
         }
 
         $timestamp = $request->header('X-TIMESTAMP');
+        $grantType = $request->input('grantType');
 
-        $result = $this->brivaService->getAccessToken($clientId, $privateKeyPem, $timestamp);
+        $result = $this->brivaService->getAccessToken($clientId, $privateKeyPem, $timestamp, $grantType);
         $status = (int) substr($result['responseCode'], 0, 3);
 
         $reason = isset($result['reason']) ? $result['reason'] : ($status === 200 ? 'success' : 'failed');

@@ -11,7 +11,7 @@ class BrivaApiTest extends TestCase
      */
     public function testGetToken()
     {
-        $response = $this->json('POST', '/snap/v1.0/access-token/b2b', [], [
+        $response = $this->json('POST', '/snap/v1.0/access-token/b2b', ['grantType' => 'client_credentials'], [
             'X-CLIENT-KEY' => 'CLIENT123',
             'X-TIMESTAMP' => '2021-11-02T13:14:15.678+07:00'
         ]);
@@ -105,13 +105,13 @@ class BrivaApiTest extends TestCase
     public function testGetTokenMissingTimestampWithActiveCache()
     {
         // First request to populate cache
-        $this->json('POST', '/snap/v1.0/access-token/b2b', [], [
+        $this->json('POST', '/snap/v1.0/access-token/b2b', ['grantType' => 'client_credentials'], [
             'X-CLIENT-KEY' => 'CLIENT123',
             'X-TIMESTAMP' => '2021-11-02T13:14:15.678+07:00'
         ]);
 
         // Second request WITHOUT X-TIMESTAMP header while cache is active
-        $response = $this->json('POST', '/snap/v1.0/access-token/b2b', [], [
+        $response = $this->json('POST', '/snap/v1.0/access-token/b2b', ['grantType' => 'client_credentials'], [
             'X-CLIENT-KEY' => 'CLIENT123'
         ]);
 
@@ -127,8 +127,8 @@ class BrivaApiTest extends TestCase
      */
     public function testDatabaseConnectionFailure()
     {
-        \Illuminate\Support\Facades\DB::shouldReceive('connection->getPdo')
-            ->andThrow(new \Exception('Database connection offline'));
+        \DB::purge();
+        config(['database.connections.sqlite.database' => '/invalid_dir/invalid_file.sqlite']);
 
         $response = $this->json('POST', '/snap/v1.0/access-token/b2b', [], [
             'X-CLIENT-KEY' => 'CLIENT123',
@@ -139,6 +139,43 @@ class BrivaApiTest extends TestCase
                  ->assertJson([
                      'responseCode' => '500000',
                      'responseMessage' => 'General Error'
+                 ]);
+
+        \DB::purge();
+        config(['database.connections.sqlite.database' => ':memory:']);
+    }
+
+    /**
+     * Test Get Token API without grantType in body
+     */
+    public function testGetTokenMissingGrantType()
+    {
+        $response = $this->json('POST', '/snap/v1.0/access-token/b2b', [], [
+            'X-CLIENT-KEY' => 'CLIENT123',
+            'X-TIMESTAMP' => '2021-11-02T13:14:15.678+07:00'
+        ]);
+
+        $response->assertStatus(400)
+                 ->assertJsonFragment([
+                     'responseCode' => '4007301',
+                     'responseMessage' => 'Invalid Field Format'
+                 ]);
+    }
+
+    /**
+     * Test Get Token API with invalid grantType in body
+     */
+    public function testGetTokenInvalidGrantType()
+    {
+        $response = $this->json('POST', '/snap/v1.0/access-token/b2b', ['grantType' => 'password'], [
+            'X-CLIENT-KEY' => 'CLIENT123',
+            'X-TIMESTAMP' => '2021-11-02T13:14:15.678+07:00'
+        ]);
+
+        $response->assertStatus(400)
+                 ->assertJsonFragment([
+                     'responseCode' => '4007301',
+                     'responseMessage' => 'Invalid Field Format'
                  ]);
     }
 }

@@ -17,13 +17,21 @@ class BrivaService
     /**
      * Process Get Access Token B2B
      */
-    public function getAccessToken($clientId, $privateKeyPem, $timestamp = null)
+    public function getAccessToken($clientId, $privateKeyPem, $timestamp = null, $grantType = null)
     {
         if (!$timestamp) {
             return [
                 'responseCode' => '4007301',
                 'responseMessage' => 'Invalid Field Format',
                 'reason' => 'invalid field format X-TIMESTAMP'
+            ];
+        }
+
+        if (empty($grantType) || $grantType !== 'client_credentials') {
+            return [
+                'responseCode' => '4007301',
+                'responseMessage' => 'Invalid Field Format',
+                'reason' => 'invalid field format grantType'
             ];
         }
 
