@@ -121,4 +121,24 @@ class BrivaApiTest extends TestCase
                      'responseMessage' => 'Invalid Field Format'
                  ]);
     }
+
+    /**
+     * Test API response when database connection fails
+     */
+    public function testDatabaseConnectionFailure()
+    {
+        \Illuminate\Support\Facades\DB::shouldReceive('connection->getPdo')
+            ->andThrow(new \Exception('Database connection offline'));
+
+        $response = $this->json('POST', '/snap/v1.0/access-token/b2b', [], [
+            'X-CLIENT-KEY' => 'CLIENT123',
+            'X-TIMESTAMP' => '2021-11-02T13:14:15.678+07:00'
+        ]);
+
+        $response->assertStatus(500)
+                 ->assertJson([
+                     'responseCode' => '500000',
+                     'responseMessage' => 'General Error'
+                 ]);
+    }
 }
